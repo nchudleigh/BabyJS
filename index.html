@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <link rel="stylesheet" href="/index.css">
+    </head>
+    <body>
+
+        <div class="" id='main'>
+            <h1 class="red">
+                Hack and Slash
+            </h1>
+            <h2>Lets build a virtual dom</h2>
+
+            <ul>
+                List Title
+                <li>
+                    Crawl the DOM tree
+                </li>
+                <li>
+                    Make a representation in JS
+                </li>
+                <li>
+                    Reconstruct the DOM while injecting {{this.example}}, and respecting :if and :each attributes
+                </li>
+            </ul>
+
+            <div class="" :if="this.some_bool">
+                Shown if bool is true
+            </div>
+
+            <div class="" :each="item in this.items">
+                {{item}}
+            </div>
+
+            {{this.expensiveFunction('value')}}
+
+        </div>
+
+
+        <script type="text/javascript" src="/index.js"></script>
+    </body>
+</html>
