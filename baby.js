@@ -1,16 +1,18 @@
 function Baby(mount, state) {
-    var tmp_tkn_rgx = /{{.*?}}/g
-    this.mount = document.getElementById(mount);
     this.state = state;
-    this.vdom = {};
-    this.sdom = '';
+
+    var self = this;
+    var tmp_tkn_rgx = /{{.*?}}/g
+    var mount = document.getElementById(mount);
+    var vdom = {};
 
 
-    this.genId = function() {
+    function genId() {
         return Math.floor((Math.random() * 99999));
     }
 
-    this.readNode = function(node) {
+
+    function readNode(node) {
         var rv = {};
 
         // Tag Name
@@ -28,7 +30,7 @@ function Baby(mount, state) {
         rv.content = node.textContent.trim();
 
         // generate an ID for this node
-        rv.id = type + '_' + this.genId();
+        rv.id = type + '_' + genId();
 
         // Attributes
         rv.attrs = {}
@@ -44,7 +46,7 @@ function Baby(mount, state) {
             // referencing the current child
             var child = node.childNodes[c];
             // documenting that child in json
-            var newNode = this.readNode(child);
+            var newNode = readNode(child);
             if (!newNode){
                 continue;
             }
@@ -53,17 +55,17 @@ function Baby(mount, state) {
             // keeping the position relative to the parent
             newNode.parIdx = c;
             // saving the DOM node to the vdom
-            this.vdom[newNode.id] =  newNode;
+            vdom[newNode.id] =  newNode;
 
         }
         return rv;
     }
 
-    this.buildNode = function(node) {
+    function buildNode(node) {
 
         if(node.attrs[':if']) {
             try {
-                var if_rv = this.evalContext(node.attrs[':if']);
+                var if_rv = evalContext(node.attrs[':if']);
                 // dont render if false
                 if (!if_rv) return '';
             } catch (e) {
@@ -75,13 +77,13 @@ function Baby(mount, state) {
         var each_var;
         if(node.attrs[':each']) {
             try {
-                // item in this.items
+                // item in this.state.items
                 each_iter = node.attrs[':each'].split(' in ');
 
                 each_var = each_iter[0];
                 each_iter = each_iter[1];
 
-                each_iter = this.evalContext(each_iter);
+                each_iter = evalContext(each_iter);
 
             } catch (e) {
                 console.warn(e);
@@ -89,13 +91,13 @@ function Baby(mount, state) {
         }
 
         var child_elements = [];
-        for( var n in this.vdom ){
-            var child = this.vdom[n];
+        for( var n in vdom ){
+            var child = vdom[n];
 
             var child_element;
 
             if (child.parId == node.id){
-                child_element = this.buildNode(child);
+                child_element = buildNode(child);
                 child_elements[child.parIdx] = child_element;
             }
         }
@@ -129,7 +131,7 @@ function Baby(mount, state) {
         var iter_elem = element;
         if (each_iter && each_iter.length) {
             for(var i in each_iter) {
-                element = element + this.injectToken(iter_elem, each_var, each_iter[i]);
+                element = element + injectToken(iter_elem, each_var, each_iter[i]);
             }
         }
 
@@ -137,16 +139,16 @@ function Baby(mount, state) {
         return element;
     }
 
-    this.evalContext = function(js) {
+    function evalContext(js) {
         var rv;
-        (function () {rv = eval(js)}).call(this.state, js);
+        (function () {rv = eval(js)}).call(self.state, js);
         return rv;
     }
 
-    this.evalToken = function(token) {
+    function evalToken(token) {
         var rv = ''
         try {
-            rv = this.evalContext(token);
+            rv = evalContext(token);
         } catch (e) {
             console.warn(e);
         } finally {
@@ -158,7 +160,7 @@ function Baby(mount, state) {
         return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     };
 
-    this.injectToken = function(input, token, value) {
+    function injectToken(input, token, value) {
         var rv = input;
         // evaluate and replace tokens
         var tok_esc = rgxEsc(token);
@@ -169,7 +171,7 @@ function Baby(mount, state) {
 
     }
 
-    this.injectTokens = function(input) {
+    function injectTokens(input) {
         var uniq = {};
         var matches = input.match(tmp_tkn_rgx);
         var rv = input;
@@ -183,19 +185,29 @@ function Baby(mount, state) {
 
         // evaluate and replace tokens
         for (var tok in uniq){
-            rv = this.injectToken(rv, tok, this.evalToken(tok));
+            rv = injectToken(rv, tok, evalToken(tok));
         }
 
         return rv;
     }
 
-    this.mount_node = this.readNode(this.mount)
+    function render(root) {
+        // Build the string representation of the vdom starting at the root
+        var sdom = buildNode(root);
+        // inject tokens into the string and update from the mount point
+        mount.innerHTML = injectTokens(sdom);
+    };
 
-    this.vdom[this.mount_node.id] = this.mount_node;
+    this.set = function(name, value) {
+        try {
+            this.state[name] = value;
+            console.log(root);
+            render(root);
+        } catch (e) {
+            console.warn(e);
+        }
+    }
 
-    this.sdom = this.buildNode.call(this, this.mount_node)
-
-    this.sdom = this.injectTokens(this.sdom)
-
-    this.mount.innerHTML = this.sdom;
+    var root = readNode(mount);
+    render(root);
 }

@@ -6,38 +6,14 @@
         <link rel="stylesheet" href="/index.css">
     </head>
     <body>
-
-        <div class="" id='main'>
-            <h1 class="red">
-                Hack and Slash
-            </h1>
-            <h2>Lets build a virtual dom</h2>
-
-            <ul>
-                List Title
-                <li>
-                    Crawl the DOM tree
-                </li>
-                <li>
-                    Make a representation in JS
-                </li>
-                <li>
-                    Reconstruct the DOM while injecting {{this.example}}, and respecting :if and :each attributes
-                </li>
-            </ul>
-
-            <div class="" :if="this.">
-                Shown if bool is true
+        <div id="main">
+            <div :if="this.name">
+                {{this.name}}
             </div>
-
-            <div class="" :each="item in this.items">
-                {{item}}
+            <div :each="letter in this.name">
+                {{letter}}
             </div>
-
-            {{this.expensiveFunction('value')}}
-
         </div>
-
 
         <script type="text/javascript" src="/baby.js"></script>
         <script type="text/javascript" src="/index.js"></script>
