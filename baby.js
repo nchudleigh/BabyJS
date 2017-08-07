@@ -62,7 +62,6 @@ function Baby(mount, state) {
     }
 
     function buildNode(node) {
-
         if(node.attrs[':if']) {
             try {
                 var if_rv = evalContext(node.attrs[':if']);
@@ -134,8 +133,6 @@ function Baby(mount, state) {
                 element = element + injectToken(iter_elem, each_var, each_iter[i]);
             }
         }
-
-
         return element;
     }
 
@@ -168,26 +165,22 @@ function Baby(mount, state) {
         tok_rgx = new RegExp(tok_rgx, "g");
         rv = rv.replace(tok_rgx, value);
         return rv;
-
     }
 
     function injectTokens(input) {
         var uniq = {};
         var matches = input.match(tmp_tkn_rgx);
         var rv = input;
-
         // de dupe the tokens
         for(var m in matches){
             var match = matches[m];
             match = match.replace('{{','').replace('}}', '').trim();
             uniq[match] = true;
         }
-
         // evaluate and replace tokens
         for (var tok in uniq){
             rv = injectToken(rv, tok, evalToken(tok));
         }
-
         return rv;
     }
 
@@ -207,7 +200,6 @@ function Baby(mount, state) {
             console.warn(e);
         }
     }
-
     var root = readNode(mount);
     render(root);
 }
